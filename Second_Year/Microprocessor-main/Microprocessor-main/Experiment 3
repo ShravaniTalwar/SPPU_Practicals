@@ -1,0 +1,87 @@
+%macro scall 4     
+mov eax, %1    
+mov ebx, %2     
+mov ecx, %3
+    mov edx, %4     
+int 80h
+%endmacro
+
+section .data     
+m1 db "Enter size of array: ",
+0xA, 0xD     l1 equ $-m1    m2 db "Enter 
+array elements: ", 0xA, 0xD    
+l2 equ $-m2     
+m3 db "Largest: ", 0xA, 0xD    l3 equ $-m3     
+m4 db 0xA, 0xD    l4 equ $-m4
+
+section .bss     cnt 
+resb 3     arr resb 
+3     cnt1 resb 3   
+arr1 resb 50     
+temp resb 2     
+char_ans resb 2
+section .text    
+global _start
+_start:
+    scall 4, 1, m1, l1     
+scall 3, 0, cnt, 3
+mov esi, arr     call 
+asciihextohex     mov 
+byte [cnt], dl     mov 
+byte [cnt1], dl
+    scall 4, 1, m2, l2     
+mov edi, arr1     
+scall 3, 0, cnt, 3
+    mov esi, arr
+back:
+    call asciihextohex     
+mov [edi], dl     inc edi     
+dec byte [cnt]     jnz back
+    mov esi, arr1    
+mov al, [esi]     inc esi
+up1:
+    mov bl, [esi]     cmp al, 
+bl     jg next1    
+mov byte [temp], al     
+mov al, bl     mov bl, 
+byte [temp]
+next1:
+    inc esi     
+dec byte [cnt1]     
+jnz up1
+    mov ecx, 02     
+mov esi,char_ans
+HtoA:
+    rol al, 4    
+mov dl, al     
+and dl, 0FH    
+cmp dl, 09h     
+jbe next2    
+add dl, 07h
+next2:    
+add dl, 30h     
+mov [esi], dl    
+inc esi     
+dec ecx    
+jnz HtoA
+    scall 4, 1, m3, l3    
+scall 4, 1, char_ans, 2    
+scall 4, 1, m4, l4
+    mov eax, 1    
+xor ebx, ebx     
+int 80h
+asciihextohex:   
+mov ecx, 2
+    mov dl, 0
+top:
+    rol dl, 4     mov al, 
+[esi]     cmp al, 39h    
+jbe down    
+sub al, 07h
+down:
+    sub al, 30h    
+add dl, al   
+inc esi
+    loop top 
+ret
+
